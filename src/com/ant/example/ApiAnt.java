@@ -9,6 +9,6 @@ public class ApiAnt {
 	}
 	
 	void printProgramVersion() {
-		System.out.println(" Name: " + PROG_VERSION);
+		System.out.println(" Version: " + PROG_VERSION);
 	}
 }

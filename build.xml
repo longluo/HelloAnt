@@ -1,97 +1,99 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--  This is a -->
-<project name="HelloAnt" default="doc">
-    
-	<!-- properies -->
-	<property name="src.dir" value="src" />
-	<property name="report.dir" value="report" />
-	<property name="classes.dir" value="classes" />
-	<property name="libs.dir" value="libs" />
-	<property name="dist.dir" value="dist" />
-	<property name="doc.dir" value="doc" />    
-  
-	<!-- define the classpath -->
-	<path id="master-classpath">
-	<fileset file="${libs.dir}/*.jar" />
-	<pathelement path="${classes.dir}" />
-	</path>
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 
+	======================================================================= 
+		Project: HelloAnt
+		Description: Learn the rules of writing the build file of ANT.
 
-	<!-- Init -->
-	<target name="init" description="init the project...">
+		Copyright (c) 2013 Long.Luo. All rights reserved. 
+	======================================================================= 
+-->
+
+<!-- 
+	文档结构为: <project> <property/> 
+	全局变量的定义 <property/>... <target name="1"> 
+	任务组(tasks) <javac></javac> 
+	一项javac任务 ... <oneTask></ontTask> 
+	一项其它任务 </target> 
+	<target name="2"> <javac></javac> ... <oneTask></ontTask> </target> </project> 
+	project代表一个项目， 
+	default:运行到名称为"dist"的target(任务组)
+	basedir:基准路径。
+-->
+
+<project name="HelloAnt" default="run" basedir=".">
+	<!-- 
+	=================================================================== 
+		init 准备目录(File Tasks) 主要的目录结构通常是不会变的，一起生成他们 
+	=================================================================== 	
+	-->
+	<property name="src" value="src" />
+	
+	<!-- app用到的lib -->
+	<property name="lib.dir" value="lib" />
+	
+	<!-- app的dist (distribution) 目录中 -->
+	<property name="dest" value="classes" />
+	
+	<property name="HelloAntjar" value="HelloAnt.jar" />
+	<property name="app.name" value="HelloAnt"/>
+	<property name="app.jar" value="${app.name}.jar"/>
+	<property name="app.copyright" value=" Copyright (c) LongLuo. All rights reserved."/>
+	
+	<!-- 
+	=================================================================== 
+		init 准备目录(File Tasks) 主要的目录结构通常是不会变的，一起生成他们 
+	=================================================================== 
+	-->
+	<target name="init">
+		<mkdir dir="${dest}" />
 	</target>
 
-	<!-- compile -->
-	<target name="compile" depends="init" description="compile the source files">
-	<mkdir dir="${classes.dir}" />
-	<javac srcdir="${src.dir}" destdir="${classes.dir}" target="1.4">
-	 <classpath refid="master-classpath" />   
-	</javac>	    
+	<!-- 
+	=================================================================== 
+		Build the code (Compile Tasks, File Tasks) 
+	=================================================================== 
+	-->
+	<target name="compile" depends="init">
+		<!-- Compile -->
+		<javac srcdir="${src}" destdir="${dest}" includeantruntime="on" />
+	</target>
+		
+	<!-- 
+	=================================================================== 
+		打包文档(Archive Tasks) Create the project jars: xxx1.jar and xxx2.jar 
+	=================================================================== 
+	-->
+	<target name="jar" depends="compile">
+		<jar jarfile="${HelloAntjar}" basedir="${dest}" />
+	</target>
+	
+	<!-- 
+	=================================================================== 
+		Run the project 
+	=================================================================== 	
+	-->
+	<target name="run" depends="jar">
+		<java classname="com.ant.example.AntMain" classpath="${HelloAntjar}" />
+	</target>
+	
+	<!-- 
+	=================================================================== 
+		Clean the project 
+	=================================================================== 
+	-->
+	<target name="clean">
+		<delete dir="${dest}" />
+		<delete file="${HelloAntjar}" />
 	</target>
 
-	<!-- Test -->
-	<target name="test" depends="compile" description="run junit test">
-	    
+	<!--  
+	=================================================================== 
+		Rerun the project 
+	=================================================================== 	
+	-->
+	<target name="rerun" depends="clean, run">
+		<ant target="clean" />
+		<ant target="run" />
 	</target>
-
-＜!-- 测试 --＞
-＜target name="test" depends="compile" description="run junit test"＞
-＜mkdir dir="${report.dir}"/＞
-＜junit printsummary="on"
-haltonfailure="false"
-failureproperty="tests.failed"
-showoutput="true"＞
-＜classpath refid="master-classpath" /＞
-＜formatter type="plain"/＞
-＜batchtest todir="${report.dir}"＞
-＜fileset dir="${classes.dir}"＞
-＜include name="**/*Test.*"/＞
-＜/fileset＞
-＜/batchtest＞
-＜/junit＞
-＜fail if="tests.failed"＞
-***********************************************************
-**** One or more tests failed! Check the output ... ****
-***********************************************************
-＜/fail＞
-＜/target＞
-
-＜!-- 打包成jar --＞
-＜target name="pack" depends="test" description="make .jar file"＞
-＜mkdir dir="${dist.dir}" /＞
-＜jar destfile="${dist.dir}/hello.jar" basedir="${classes.dir}"＞
-＜exclude name="**/*Test.*" /＞
-＜exclude name="**/Test*.*" /＞
-＜/jar＞
-＜/target＞
-
-＜!-- 输出api文档 --＞
-＜target name="doc" depends="pack" description="create api doc"＞
-＜mkdir dir="${doc.dir}" /＞
-＜javadoc destdir="${doc.dir}"
-author="true"
-version="true"
-use="true"
-windowtitle="Test API"＞
-＜packageset dir="${src.dir}" defaultexcludes="yes"＞
-＜include name="example/**" /＞
-＜/packageset＞
-＜doctitle＞＜![CDATA[＜h1＞Hello, test＜/h1＞]]＞＜/doctitle＞
-＜bottom＞＜![CDATA[＜i＞All Rights Reserved.＜/i＞]]＞＜/bottom＞
-＜tag name="todo" scope="all" description="To do:" /＞
-＜/javadoc＞
-＜/target＞    
-</project>
-
-<project default="main" basedir=".">
-    
-	<target name="main" depends="compile, compress" description="Main target">
-		<echo>Building the .jar file.</echo>
-	</target>
-	<target name="compile" description="Compilation target">
-		<javac srcdir="${basedir}/src/example" />
-	</target>
-	<target name="compress" description="Compression target">
-		<jar jarfile="HelloWorld.jar" basedir="${basedir}/src/example"
-			includes="*.class" />
-	</target>
+	
 </project>

@@ -1,5 +1,6 @@
 package com.ant.example;
 
+
 public class AntMain {
 	public static void main(String[] args) {
 		begin();
